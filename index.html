@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WarRoom — Soumettre un sujet de prière</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #2a2a3a;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --text: #e8e4d9;
+      --text-dim: #8a8070;
+      --red: #8b2020;
+      --white: #f5f0e8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(139,32,32,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .cross {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 28px;
+      height: 40px;
+      position: relative;
+    }
+    .cross::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0;
+      transform: translateX(-50%);
+      width: 3px; height: 100%;
+      background: var(--gold);
+    }
+    .cross::after {
+      content: '';
+      position: absolute;
+      top: 30%; left: 0;
+      width: 100%; height: 3px;
+      background: var(--gold);
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 1rem;
+      color: var(--text-dim);
+      font-style: italic;
+      letter-spacing: 0.04em;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 1.4rem 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+    }
+    .divider span {
+      color: var(--gold);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem 1.8rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    .field-label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+
+    textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      padding: 0.9rem 1rem;
+      resize: vertical;
+      min-height: 160px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    textarea::placeholder { color: var(--text-dim); font-style: italic; }
+    textarea:focus { border-color: var(--gold); }
+
+    .anon-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+      cursor: pointer;
+    }
+
+    .anon-row input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .anon-row input[type="checkbox"]:checked {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .anon-row input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px; top: 1px;
+      width: 5px; height: 9px;
+      border: 2px solid #0a0a0f;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .anon-label {
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      user-select: none;
+    }
+
+    .name-field {
+      margin-top: 0.8rem;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .name-field.visible {
+      max-height: 80px;
+      opacity: 1;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem;
+      padding: 0.7rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]::placeholder { color: var(--text-dim); font-style: italic; }
+    input[type="text"]:focus { border-color: var(--gold); }
+
+    .send-btn {
+      margin-top: 1.6rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .send-btn:hover {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .send-btn:disabled:hover {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 2.5rem 1rem;
+    }
+    .success-msg.show { display: block; }
+    .success-icon {
+      display: block;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .success-msg h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 1.3rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+    .success-msg p {
+      color: var(--text-dim);
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .form-content {}
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .error-msg {
+      color: #e06060;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="cross" aria-hidden="true"></span>
+      <h1>WarRoom</h1>
+      <p class="subtitle">Déposez votre sujet de prière — il sera porté devant le Seigneur.</p>
+    </header>
+
+    <div class="card">
+      <div class="form-content" id="formContent">
+        <label class="field-label" for="prayerText">Votre sujet de prière</label>
+        <textarea
+          id="prayerText"
+          placeholder="Partagez librement ce qui est sur votre cœur… Il n'y a pas de limite."
+          rows="6"
+        ></textarea>
+        <div class="error-msg" id="errorMsg">Veuillez écrire votre sujet de prière avant d'envoyer.</div>
+
+        <label class="anon-row" for="anonCheck">
+          <input type="checkbox" id="anonCheck" checked />
+          <span class="anon-label">Rester anonyme</span>
+        </label>
+
+        <div class="name-field" id="nameField">
+          <input type="text" id="nameInput" placeholder="Votre nom" />
+        </div>
+
+        <button class="send-btn" id="sendBtn" onclick="submitPrayer()">
+          ✦ Envoyer ma prière
+        </button>
+      </div>
+
+      <div class="success-msg" id="successMsg">
+        <span class="success-icon">🕊️</span>
+        <h2>Votre prière a été reçue</h2>
+        <p>Quelqu'un va intercéder pour vous.<br>Que la paix du Seigneur soit avec vous.</p>
+      </div>
+    </div>
+
+    <footer>
+      WarRoom &mdash; Intercession &amp; Prière &bull; <span id="yr"></span>
+    </footer>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
+    // Remplacez ces valeurs par celles de votre projet Firebase
+          const firebaseConfig = {
+        apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
+        authDomain: "war-room-46f64.firebaseapp.com",
+        projectId: "war-room-46f64",
+        storageBucket: "war-room-46f64.firebasestorage.app",
+        messagingSenderId: "707885916450",
+        appId: "1:707885916450:web:356da6211faceb1283457b",
+        measurementId: "G-SH2TW2N3F3"
+      };
+
+    // ────────────────────────────────────────────────────────────────────────
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Toggle champ nom
+    const anonCheck = document.getElementById('anonCheck');
+    const nameField = document.getElementById('nameField');
+    anonCheck.addEventListener('change', () => {
+      nameField.classList.toggle('visible', !anonCheck.checked);
+    });
+
+    window.submitPrayer = async function () {
+      const text = document.getElementById('prayerText').value.trim();
+      const isAnon = anonCheck.checked;
+      const name  = document.getElementById('nameInput').value.trim();
+      const errEl = document.getElementById('errorMsg');
+      const btn   = document.getElementById('sendBtn');
+
+      if (!text) {
+        errEl.classList.add('show');
+        return;
+      }
+      errEl.classList.remove('show');
+
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours…';
+
+      try {
+        await addDoc(collection(db, 'prayers'), {
+          text,
+          author: isAnon ? null : (name || null),
+          isAnon,
+          read: false,
+          prayed: false,
+          createdAt: serverTimestamp()
+        });
+
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('successMsg').classList.add('show');
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = '✦ Envoyer ma prière';
+        alert('Une erreur est survenue. Veuillez réessayer.');
+      }
+    };
+  </script>
+</body>
+</html>

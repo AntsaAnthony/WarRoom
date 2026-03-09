@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WarRoom — Back Office</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3a;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --text: #e8e4d9;
+      --text-dim: #8a8070;
+      --red: #8b2020;
+      --unread-bg: #14141f;
+      --green: #4a8c5c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 30% at 50% 0%, rgba(201,168,76,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── LOGIN SCREEN ────────────────────────────── */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      z-index: 100;
+      padding: 1rem;
+    }
+    #loginScreen.hidden { display: none; }
+
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+    .cross-sm {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 22px; height: 32px;
+      position: relative;
+    }
+    .cross-sm::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0;
+      transform: translateX(-50%);
+      width: 3px; height: 100%;
+      background: var(--gold);
+    }
+    .cross-sm::after {
+      content: '';
+      position: absolute;
+      top: 28%; left: 0;
+      width: 100%; height: 3px;
+      background: var(--gold);
+    }
+    .login-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .login-sub {
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .login-box input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem;
+      padding: 0.8rem 1rem;
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.2em;
+      transition: border-color 0.2s;
+    }
+    .login-box input:focus { border-color: var(--gold); }
+    .login-box input::placeholder { letter-spacing: 0.05em; color: var(--text-dim); }
+
+    .login-btn {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.8rem;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .login-btn:hover { background: var(--gold); color: var(--bg); }
+    .login-error {
+      margin-top: 0.7rem;
+      color: #e06060;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .login-error.show { display: block; }
+
+    /* ── APP SHELL ───────────────────────────────── */
+    #appShell { display: none; }
+    #appShell.show { display: block; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(10,10,15,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(6px);
+    }
+    .topbar-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .badge {
+      background: var(--red);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      padding: 0.15em 0.55em;
+      border-radius: 10px;
+      letter-spacing: 0.05em;
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── PRAYER LIST ─────────────────────────────── */
+    #listView { padding: 0; }
+
+    .prayer-item {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .prayer-item:hover { background: var(--surface2); }
+    .prayer-item.unread { background: var(--unread-bg); }
+    .prayer-item.unread .pi-text { font-weight: 600; }
+
+    .unread-dot {
+      position: absolute;
+      left: 0.35rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .pi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .pi-author {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .pi-date {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .pi-text {
+      font-size: 0.97rem;
+      color: var(--text);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pi-tags {
+      margin-top: 0.4rem;
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      padding: 0.1em 0.5em;
+      border-radius: 2px;
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+    }
+    .tag-prayed {
+      background: rgba(74,140,92,0.15);
+      color: var(--green);
+      border: 1px solid rgba(74,140,92,0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--text-dim);
+      font-style: italic;
+      display: none;
+    }
+    .empty-state.show { display: block; }
+
+    /* ── DETAIL VIEW ─────────────────────────────── */
+    #detailView {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 50;
+      overflow-y: auto;
+    }
+    #detailView.show { display: block; }
+
+    .detail-topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,15,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      backdrop-filter: blur(6px);
+    }
+    .back-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    .detail-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.4rem;
+    }
+    .detail-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-author {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .detail-date {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .detail-text {
+      font-size: 1.12rem;
+      line-height: 1.85;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .detail-actions {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 0.6rem 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .btn-prayed {
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+    }
+    .btn-prayed:hover, .btn-prayed.active {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-delete {
+      background: transparent;
+      border: 1px solid #553030;
+      color: #e06060;
+    }
+    .btn-delete:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-style: italic;
+      display: none;
+    }
+    .loading.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ── -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <span class="cross-sm" aria-hidden="true"></span>
+      <div class="login-title">WarRoom</div>
+      <div class="login-sub">Espace d'intercession — accès privé</div>
+      <input type="password" id="pwdInput" placeholder="Mot de passe secret"
+        onkeydown="if(event.key==='Enter') login()" />
+      <button class="login-btn" onclick="login()">Entrer</button>
+      <div class="login-error" id="loginError">Mot de passe incorrect.</div>
+    </div>
+  </div>
+
+  <!-- ── APP ── -->
+  <div id="appShell">
+    <div class="topbar">
+      <div class="topbar-title">
+        WarRoom
+        <span class="badge" id="unreadBadge" style="display:none">0</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">Tous</button>
+        <button class="filter-btn" id="filterUnread" onclick="setFilter('unread')">Non lus</button>
+        <button class="filter-btn" id="filterPrayed" onclick="setFilter('prayed')">Priés</button>
+      </div>
+    </div>
+
+    <div id="listView">
+      <div class="loading show" id="loadingMsg">Chargement des sujets de prière…</div>
+      <div class="empty-state" id="emptyState">Aucun sujet de prière pour l'instant.</div>
+    </div>
+  </div>
+
+  <!-- ── DETAIL ── -->
+  <div id="detailView">
+    <div class="detail-topbar">
+      <button class="back-btn" onclick="closeDetail()">← Retour</button>
+      <span style="font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold);letter-spacing:0.1em;">Sujet de prière</span>
+    </div>
+    <div class="detail-body">
+      <div class="detail-meta">
+        <div class="detail-author" id="detailAuthor"></div>
+        <div class="detail-date" id="detailDate"></div>
+      </div>
+      <div class="detail-text" id="detailText"></div>
+      <div class="detail-actions">
+        <button class="action-btn btn-prayed" id="prayedBtn" onclick="togglePrayed()">✦ Marquer comme prié</button>
+        <button class="action-btn btn-delete" onclick="deletePrayer()">✕ Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, query, orderBy,
+      onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
+      authDomain: "war-room-46f64.firebaseapp.com",
+      projectId: "war-room-46f64",
+      storageBucket: "war-room-46f64.firebasestorage.app",
+      messagingSenderId: "707885916450",
+      appId: "1:707885916450:web:356da6211faceb1283457b",
+      measurementId: "G-SH2TW2N3F3"
+};
+
+    // ── MOT DE PASSE ADMIN ──────────────────────────────────────────────────
+    const ADMIN_PASSWORD = "VOTRE_MOT_DE_PASSE_SECRET";
+    // ────────────────────────────────────────────────────────────────────────
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    let allPrayers   = [];
+    let currentId    = null;
+    let currentFilter = 'all';
+
+    // ── AUTH ────────────────────────────────────────────────────────────────
+    window.login = function () {
+      const v = document.getElementById('pwdInput').value;
+      if (v === ADMIN_PASSWORD) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appShell').classList.add('show');
+        loadPrayers();
+      } else {
+        document.getElementById('loginError').classList.add('show');
+        document.getElementById('pwdInput').value = '';
+      }
+    };
+
+    // ── LOAD ────────────────────────────────────────────────────────────────
+    function loadPrayers() {
+      const q = query(collection(db, 'prayers'), orderBy('createdAt', 'desc'));
+      onSnapshot(q, snap => {
+        allPrayers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderList();
+        document.getElementById('loadingMsg').classList.remove('show');
+      });
+    }
+
+    // ── FILTER ──────────────────────────────────────────────────────────────
+    window.setFilter = function (f) {
+      currentFilter = f;
+      ['All','Unread','Prayed'].forEach(x => {
+        document.getElementById('filter'+x).classList.remove('active');
+      });
+      document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1)).classList.add('active');
+      renderList();
+    };
+
+    // ── RENDER LIST ─────────────────────────────────────────────────────────
+    function renderList() {
+      const listEl = document.getElementById('listView');
+      // remove old items
+      listEl.querySelectorAll('.prayer-item').forEach(e => e.remove());
+
+      let filtered = allPrayers;
+      if (currentFilter === 'unread') filtered = allPrayers.filter(p => !p.read);
+      if (currentFilter === 'prayed') filtered = allPrayers.filter(p => p.prayed);
+
+      const unread = allPrayers.filter(p => !p.read).length;
+      const badge  = document.getElementById('unreadBadge');
+      badge.textContent = unread;
+      badge.style.display = unread > 0 ? 'inline' : 'none';
+
+      const emptyEl = document.getElementById('emptyState');
+      if (filtered.length === 0) {
+        emptyEl.classList.add('show');
+      } else {
+        emptyEl.classList.remove('show');
+      }
+
+      filtered.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'prayer-item' + (p.read ? '' : ' unread');
+        item.dataset.id = p.id;
+
+        const author = p.isAnon ? 'Anonyme' : (p.author || 'Anonyme');
+        const date   = p.createdAt ? formatDate(p.createdAt.toDate()) : '—';
+        const excerpt = p.text.length > 120 ? p.text.slice(0, 120) + '…' : p.text;
+
+        item.innerHTML = `
+          ${!p.read ? '<div class="unread-dot"></div>' : ''}
+          <div class="pi-header">
+            <div class="pi-author">${escHtml(author)}</div>
+            <div class="pi-date">${date}</div>
+          </div>
+          <div class="pi-text">${escHtml(excerpt)}</div>
+          ${p.prayed ? '<div class="pi-tags"><span class="tag tag-prayed">✦ Prié</span></div>' : ''}
+        `;
+        item.addEventListener('click', () => openDetail(p.id));
+        document.getElementById('listView').appendChild(item);
+      });
+    }
+
+    // ── OPEN DETAIL ─────────────────────────────────────────────────────────
+    window.openDetail = async function (id) {
+      const p = allPrayers.find(x => x.id === id);
+      if (!p) return;
+      currentId = id;
+
+      document.getElementById('detailAuthor').textContent =
+        p.isAnon ? 'Anonyme' : (p.author || 'Anonyme');
+      document.getElementById('detailDate').textContent =
+        p.createdAt ? formatDate(p.createdAt.toDate(), true) : '—';
+      document.getElementById('detailText').textContent = p.text;
+
+      const pBtn = document.getElementById('prayedBtn');
+      pBtn.textContent = p.prayed ? '✦ Déjà prié' : '✦ Marquer comme prié';
+      pBtn.classList.toggle('active', p.prayed);
+
+      document.getElementById('detailView').classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      // Mark as read
+      if (!p.read) {
+        await updateDoc(doc(db, 'prayers', id), { read: true });
+      }
+    };
+
+    window.closeDetail = function () {
+      document.getElementById('detailView').classList.remove('show');
+      document.body.style.overflow = '';
+      currentId = null;
+    };
+
+    window.togglePrayed = async function () {
+      if (!currentId) return;
+      const p = allPrayers.find(x => x.id === currentId);
+      const newVal = !p.prayed;
+      await updateDoc(doc(db, 'prayers', currentId), { prayed: newVal });
+      const pBtn = document.getElementById('prayedBtn');
+      pBtn.textContent = newVal ? '✦ Déjà prié' : '✦ Marquer comme prié';
+      pBtn.classList.toggle('active', newVal);
+    };
+
+    window.deletePrayer = async function () {
+      if (!currentId) return;
+      if (!confirm('Supprimer définitivement ce sujet de prière ?')) return;
+      await deleteDoc(doc(db, 'prayers', currentId));
+      closeDetail();
+    };
+
+    // ── UTILS ────────────────────────────────────────────────────────────────
+    function formatDate(d, full = false) {
+      const now  = new Date();
+      const diff = (now - d) / 1000;
+      if (!full) {
+        if (diff < 60)     return 'À l'instant';
+        if (diff < 3600)   return Math.floor(diff/60) + ' min';
+        if (diff < 86400)  return Math.floor(diff/3600) + ' h';
+        if (diff < 604800) return Math.floor(diff/86400) + ' j';
+      }
+      return d.toLocaleDateString('fr-FR', {
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+  </script>
+</body>
+</html>

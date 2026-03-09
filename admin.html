@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>War Room — Back Office</title>
+  <title>WarRoom — Back Office</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
@@ -390,7 +390,7 @@
   <div id="loginScreen">
     <div class="login-box">
       <span class="cross-sm" aria-hidden="true"></span>
-      <div class="login-title">War Room</div>
+      <div class="login-title">WarRoom</div>
       <div class="login-sub">Espace d'intercession — accès privé</div>
       <input type="password" id="pwdInput" placeholder="Mot de passe secret"
         onkeydown="if(event.key==='Enter') login()" />
@@ -438,27 +438,43 @@
     </div>
   </div>
 
+  <!-- Mot de passe admin (accessible globalement) -->
+  <script>
+    // ── MOT DE PASSE ADMIN ──────────────────────────────────────────────────
+    var ADMIN_PASSWORD = "VOTRE_MOT_DE_PASSE_SECRET";
+    // ────────────────────────────────────────────────────────────────────────
+
+    function login() {
+      var v = document.getElementById('pwdInput').value;
+      if (v === ADMIN_PASSWORD) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appShell').classList.add('show');
+        if (typeof startApp === 'function') startApp();
+      } else {
+        document.getElementById('loginError').classList.add('show');
+        document.getElementById('pwdInput').value = '';
+      }
+    }
+    window.login = login;
+  </script>
+
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
       getFirestore, collection, query, orderBy,
-      onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp
+      onSnapshot, doc, updateDoc, deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
     const firebaseConfig = {
-      apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
-      authDomain: "war-room-46f64.firebaseapp.com",
-      projectId: "war-room-46f64",
-      storageBucket: "war-room-46f64.firebasestorage.app",
-      messagingSenderId: "707885916450",
-      appId: "1:707885916450:web:356da6211faceb1283457b",
-      measurementId: "G-SH2TW2N3F3"
-};
-
-    // ── MOT DE PASSE ADMIN ──────────────────────────────────────────────────
-    const ADMIN_PASSWORD = "Jesus";
+      apiKey:            "VOTRE_API_KEY",
+      authDomain:        "VOTRE_PROJECT.firebaseapp.com",
+      projectId:         "VOTRE_PROJECT_ID",
+      storageBucket:     "VOTRE_PROJECT.appspot.com",
+      messagingSenderId: "VOTRE_SENDER_ID",
+      appId:             "VOTRE_APP_ID"
+    };
     // ────────────────────────────────────────────────────────────────────────
 
     const app = initializeApp(firebaseConfig);
@@ -468,18 +484,8 @@
     let currentId    = null;
     let currentFilter = 'all';
 
-    // ── AUTH ────────────────────────────────────────────────────────────────
-    window.login = function () {
-      const v = document.getElementById('pwdInput').value;
-      if (v === ADMIN_PASSWORD) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('appShell').classList.add('show');
-        loadPrayers();
-      } else {
-        document.getElementById('loginError').classList.add('show');
-        document.getElementById('pwdInput').value = '';
-      }
-    };
+    // startApp est appelé depuis le script global après validation du mot de passe
+    window.startApp = function() { loadPrayers(); };
 
     // ── LOAD ────────────────────────────────────────────────────────────────
     function loadPrayers() {

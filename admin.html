@@ -489,11 +489,42 @@
 
     // ── LOAD ────────────────────────────────────────────────────────────────
     function loadPrayers() {
+      const loadingEl = document.getElementById('loadingMsg');
+
+      // Timeout 8s : affiche un message d'erreur utile si Firebase ne répond pas
+      const timeout = setTimeout(() => {
+        loadingEl.innerHTML = `
+          <span style="color:#e06060">&#9888; Impossible de charger les donn&eacute;es.</span><br><br>
+          <small>Causes possibles :<br>
+          1. Les cl&eacute;s Firebase ne sont pas encore renseign&eacute;es dans le fichier<br>
+          2. Les r&egrave;gles Firestore bloquent la lecture (voir Guide &eacute;tape 1.4)<br>
+          3. Probl&egrave;me de connexion internet<br><br>
+          Ouvrez la console (F12 &rarr; Console) pour voir l&apos;erreur exacte.</small>
+        `;
+        loadingEl.style.lineHeight = '1.9';
+        loadingEl.style.fontSize = '0.95rem';
+      }, 8000);
+
       const q = query(collection(db, 'prayers'), orderBy('createdAt', 'desc'));
       onSnapshot(q, snap => {
+        clearTimeout(timeout);
         allPrayers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderList();
-        document.getElementById('loadingMsg').classList.remove('show');
+        loadingEl.classList.remove('show');
+      }, err => {
+        clearTimeout(timeout);
+        const msgs = {
+          'permission-denied': 'Vos r&egrave;gles Firestore bloquent la lecture. Suivez l&apos;&eacute;tape 1.4 du guide d&apos;installation.',
+          'unavailable':       'Firebase est injoignable. V&eacute;rifiez votre connexion internet.',
+          'not-found':         'Le projet Firebase est introuvable. V&eacute;rifiez le projectId dans le fichier.',
+        };
+        const hint = msgs[err.code] || 'V&eacute;rifiez que les cl&eacute;s Firebase dans le fichier sont correctes.';
+        loadingEl.innerHTML = `
+          <span style="color:#e06060">&#9888; Erreur Firebase : <b>${err.code}</b></span><br><br>
+          <small>${hint}</small>
+        `;
+        loadingEl.style.lineHeight = '1.9';
+        loadingEl.style.fontSize = '0.95rem';
       });
     }
 

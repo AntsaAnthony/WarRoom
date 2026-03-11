@@ -2,8 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>War Room — Soumettre un sujet de prière</title>
+  <title>WarRoom — Soumettre un sujet de prière</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
@@ -293,7 +295,7 @@
   <div class="container">
     <header>
       <span class="cross" aria-hidden="true"></span>
-      <h1>War Room</h1>
+      <h1>WarRoom</h1>
       <p class="subtitle">Déposez votre sujet de prière — il sera porté devant le Seigneur.</p>
     </header>
 
@@ -329,7 +331,7 @@
     </div>
 
     <footer>
-      War Room &mdash; Intercession &amp; Prière &bull; <span id="yr"></span>
+      WarRoom &mdash; Intercession &amp; Prière &bull; <span id="yr"></span>
     </footer>
   </div>
 
@@ -341,16 +343,14 @@
 
     // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
     // Remplacez ces valeurs par celles de votre projet Firebase
-          const firebaseConfig = {
-        apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
-        authDomain: "war-room-46f64.firebaseapp.com",
-        projectId: "war-room-46f64",
-        storageBucket: "war-room-46f64.firebasestorage.app",
-        messagingSenderId: "707885916450",
-        appId: "1:707885916450:web:356da6211faceb1283457b",
-        measurementId: "G-SH2TW2N3F3"
-      };
-
+    const firebaseConfig = {
+      apiKey:            "VOTRE_API_KEY",
+      authDomain:        "VOTRE_PROJECT.firebaseapp.com",
+      projectId:         "VOTRE_PROJECT_ID",
+      storageBucket:     "VOTRE_PROJECT.appspot.com",
+      messagingSenderId: "VOTRE_SENDER_ID",
+      appId:             "VOTRE_APP_ID"
+    };
     // ────────────────────────────────────────────────────────────────────────
 
     const app = initializeApp(firebaseConfig);

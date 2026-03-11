@@ -336,6 +336,10 @@
     </footer>
   </div>
 
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init("0M9qnOIePTTNGcgRz");</script>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -344,7 +348,7 @@
 
     // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
     // Remplacez ces valeurs par celles de votre projet Firebase
-   const firebaseConfig = {
+ const firebaseConfig = {
   apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
   authDomain: "war-room-46f64.firebaseapp.com",
   projectId: "war-room-46f64",
@@ -368,11 +372,11 @@
     });
 
     window.submitPrayer = async function () {
-      const text = document.getElementById('prayerText').value.trim();
+      const text   = document.getElementById('prayerText').value.trim();
       const isAnon = anonCheck.checked;
-      const name  = document.getElementById('nameInput').value.trim();
-      const errEl = document.getElementById('errorMsg');
-      const btn   = document.getElementById('sendBtn');
+      const name   = document.getElementById('nameInput').value.trim();
+      const errEl  = document.getElementById('errorMsg');
+      const btn    = document.getElementById('sendBtn');
 
       if (!text) {
         errEl.classList.add('show');
@@ -384,6 +388,7 @@
       btn.textContent = 'Envoi en cours…';
 
       try {
+        // 1. Sauvegarder dans Firebase
         await addDoc(collection(db, 'prayers'), {
           text,
           author: isAnon ? null : (name || null),
@@ -392,6 +397,23 @@
           prayed: false,
           createdAt: serverTimestamp()
         });
+
+        // 2. Envoyer l'email de notification via EmailJS
+        const author = isAnon ? 'Anonyme' : (name || 'Anonyme');
+        const now    = new Date().toLocaleDateString('fr-FR', {
+          day: 'numeric', month: 'long', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        try {
+          await emailjs.send("service_q8gptpi", "template_a58ax2p", {
+            author:  author,
+            date:    now,
+            message: text
+          });
+        } catch (emailErr) {
+          // L'email a échoué mais la prière est bien sauvegardée — on continue
+          console.warn('Email non envoyé :', emailErr);
+        }
 
         document.getElementById('formContent').style.display = 'none';
         document.getElementById('successMsg').classList.add('show');

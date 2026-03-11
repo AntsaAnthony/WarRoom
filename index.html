@@ -2,8 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WarRoom — Soumettre un sujet de prière</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -343,14 +344,15 @@
 
     // ── CONFIGURATION FIREBASE ──────────────────────────────────────────────
     // Remplacez ces valeurs par celles de votre projet Firebase
-    const firebaseConfig = {
-      apiKey:            "VOTRE_API_KEY",
-      authDomain:        "VOTRE_PROJECT.firebaseapp.com",
-      projectId:         "VOTRE_PROJECT_ID",
-      storageBucket:     "VOTRE_PROJECT.appspot.com",
-      messagingSenderId: "VOTRE_SENDER_ID",
-      appId:             "VOTRE_APP_ID"
-    };
+   const firebaseConfig = {
+  apiKey: "AIzaSyCg27y8CoN9vgZlHsl8DueVGcCqRbtG2BQ",
+  authDomain: "war-room-46f64.firebaseapp.com",
+  projectId: "war-room-46f64",
+  storageBucket: "war-room-46f64.firebasestorage.app",
+  messagingSenderId: "707885916450",
+  appId: "1:707885916450:web:356da6211faceb1283457b",
+  measurementId: "G-SH2TW2N3F3"
+};
     // ────────────────────────────────────────────────────────────────────────
 
     const app = initializeApp(firebaseConfig);
